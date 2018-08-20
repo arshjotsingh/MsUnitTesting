@@ -9,27 +9,41 @@ namespace Ms.TeamService.Persistence
     public class MemoryTeamRepository : ITeamRepository
     {
         private static ICollection<Team> _teams;
-
-        public MemoryTeamRepository()
+        private TeamDbContext _context;
+        public MemoryTeamRepository(TeamDbContext context)
         {
-        }
-
-        public MemoryTeamRepository(ICollection<Team> teams)
-        {
-            _teams = teams;
+            _context = context;
         }
 
         public async Task<IEnumerable<Team>> GetTeams()
         {
-            return await Task.Run(() => _teams);
+            return await Task.Run(() => _context.Teams.ToList());
         }
         public async Task AddTeam(Team t)
         {
-            await Task.Run(() => _teams.Add(t));
+            _context.Teams.Add(t);
+            await _context.SaveChangesAsync();
         }
-        public async Task<Team> GetTeamById(int teamId)
+
+        public async Task<Team> GetTeamById(Guid teamId)
         {
-            return await Task.Run(() => _teams.Where(x => x.TeamId == teamId).FirstOrDefault());
+            return await _context.Teams.FindAsync(teamId);
+        }
+
+        public async Task AddTeamMember(Guid teamId, Member member)
+        {
+            var team = await _context.Teams.FindAsync(teamId);
+            team.Members.Add(member);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateTeamMember(Guid teamId, Member member)
+        {
+            throw new NotImplementedException();
+        }
+        public Task DeleteTeamMember(Guid teamId, Guid memberId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

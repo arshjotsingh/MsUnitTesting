@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Ms.TeamService.Models;
 using Ms.TeamService.Persistence;
@@ -14,6 +15,7 @@ namespace Ms.TeamService.Controllers
             _teamRepository = teamRepository;
         }
 
+        [Route("api/[controller]/teams")]
         [HttpGet]
         public async Task<IActionResult> GetAllTeams()
         {
@@ -21,14 +23,13 @@ namespace Ms.TeamService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTeamById(int teamId)
+        public async Task<IActionResult> GetTeamById(Guid teamId)
         {
             var team = await _teamRepository.GetTeamById(teamId);
             if (team == null)
             {
                 return NotFound(teamId);
             }
-
             return Ok(await _teamRepository.GetTeamById(teamId));
         }
 
@@ -48,5 +49,13 @@ namespace Ms.TeamService.Controllers
             }
             return BadRequest(ModelState);
         }
+
+        [HttpGet]
+        [Route("api/teams/ping")]
+        public string Get()
+        {
+            return "Pong";
+        }
+
     }
 }

@@ -6,7 +6,7 @@ namespace Ms.TeamService.Models
     public class Team
     {
         public string Name { get; set; }
-        public int TeamId { get; set; }
+        public Guid TeamId { get; set; }
         public ICollection<Member> Members { get; set; }
 
         public Team()
@@ -19,14 +19,14 @@ namespace Ms.TeamService.Models
             Name = name;
         }
 
-        public Team(string name, int id) : this(name)
+        public Team(string name, Guid teamId) : this(name)
         {
-            TeamId = id;
+            TeamId = teamId;
         }
 
         public override string ToString()
         {
-            return this.Name;
+            return Name;
         }
     }
 }

@@ -4,18 +4,18 @@ namespace Ms.TeamService.Models
 {
     public class Member
     {
-        public int MemeberId { get; set; }
+        public Guid MemberId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public Member()
         {
         }
-        public Member(int id) : this()
+        public Member(Guid id) : this()
         {
-            MemeberId = id;
+            MemberId = id;
         }
         public Member(string firstName,
-        string lastName, int id) : this(id)
+        string lastName, Guid id) : this(id)
         {
             FirstName = firstName;
             LastName = lastName;

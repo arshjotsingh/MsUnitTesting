@@ -32,7 +32,7 @@ namespace Ms.TeamService.Tests
         public async Task GetTeamById_ReturnsHttpNotFound_ForInvalidTeam()
         {
             // Arrange
-            int teamId = 123;
+            Guid teamId = Guid.NewGuid();
             var mockRepo = new Mock<ITeamRepository>();
             mockRepo.Setup(x => x.GetTeamById(teamId)).Returns(Task.FromResult((Team)null));
             var controller = new TeamsController(mockRepo.Object);
@@ -79,8 +79,6 @@ namespace Ms.TeamService.Tests
 
             Assert.Equal("Ont", returnTeam.Name);
             Assert.Single(returnTeam.Members);
-            Assert.Equal("A", returnTeam.Members.Where(x => x.MemeberId == 1).FirstOrDefault().FirstName);
-            Assert.Equal("singh", returnTeam.Members.Where(x => x.MemeberId == 1).FirstOrDefault().LastName);
         }
 
 
@@ -100,7 +98,11 @@ namespace Ms.TeamService.Tests
                 Name = "Ont",
                 Members = new Member[]
                 {
-                    new Member("A","singh",1)
+                    new Member
+                    {
+                        FirstName = "Arsh",
+                        LastName = "Hunjan"
+                    }
                 }
             };
         }

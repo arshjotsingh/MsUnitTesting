@@ -22,7 +22,7 @@ namespace Ms.TeamService.Controllers
         }
 
         [Route("api/[controller]/{id}")]
-        [HttpGet]
+        [HttpGet("{id}", Name = "GetTeam")]
         public async Task<IActionResult> GetTeamById(Guid teamId)
         {
             var team = await _teamRepository.GetTeamById(teamId);
@@ -42,16 +42,51 @@ namespace Ms.TeamService.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _teamRepository.AddTeam(t);
-            return CreatedAtRoute("GetTeams", t);
+            var team = new Team
+            {
+                TeamId = Guid.NewGuid(),
+                Name = t.Name,
+                AddedTime = DateTime.Now,
+            };
+
+            await _teamRepository.AddTeam(team);
+            return CreatedAtRoute("GetTeam", new { id = team.TeamId }, team);
         }
 
-        [HttpGet]
-        [Route("api/[controller]/ping")]
-        public string Get()
+
+        [Route("api/[controller]/{id}")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateTeam(Guid id, [FromBody]Team t)
         {
-            return "Pong";
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var team = await _teamRepository.GetTeamById(id);
+            if (team == null)
+            {
+                return NotFound(id);
+            }
+
+            team.ModifiedTime = DateTime.Now;
+            team.Name = t.Name;
+
+            await _teamRepository.UpdateTeam(team);
+            return NoContent();
         }
 
+        [Route("api/[controller]/{id}")]
+        [HttpDelete]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var team = await _teamRepository.GetTeamById(id);
+            if (team == null)
+            {
+                return NotFound(id);
+            }
+            await _teamRepository.DeleteTeam(id);
+            return NoContent();
+        }
     }
 }

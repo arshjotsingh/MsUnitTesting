@@ -10,7 +10,7 @@ using Ms.TeamService.Persistence;
 namespace Ms.TeamService.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Members")]
+    [Route("api/[controller]")]
     public class MembersController : Controller
     {
         private ITeamRepository _teamRepository;
@@ -19,7 +19,7 @@ namespace Ms.TeamService.Controllers
             _teamRepository = teamRepository;
         }
 
-        [Route("api/teams/{teamId}/members")]
+        [Route("api/teams/{teamId}/[controller]")]
         [HttpGet]
         public async Task<IActionResult> Get(Guid teamId)
         {
@@ -32,7 +32,7 @@ namespace Ms.TeamService.Controllers
             return Ok(team.Members);
         }
 
-        [Route("api/teams/{teamId}/members")]
+        [Route("api/teams/{teamId}/[controller]")]
         [HttpPost]
         public async Task<IActionResult> Post(Guid teamId, [FromBody]Member member)
         {
@@ -59,7 +59,7 @@ namespace Ms.TeamService.Controllers
             return CreatedAtRoute("GetMembers", _member);
         }
 
-        [Route("api/teams/{teamId}/members/{memberId}")]
+        [Route("api/teams/{teamId}/[controller]/{memberId}")]
         [HttpPut]
         public async Task<IActionResult> Put(Guid teamId, Guid memberId, [FromBody]Member member)
         {
@@ -89,7 +89,7 @@ namespace Ms.TeamService.Controllers
         }
 
 
-        [Route("api/teams/{teamId}/members/{memberId}")]
+        [Route("api/teams/{teamId}/[controller]/{memberId}")]
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid teamId, Guid memberId)
         {

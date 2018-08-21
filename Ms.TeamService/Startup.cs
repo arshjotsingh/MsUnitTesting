@@ -27,18 +27,21 @@ namespace Ms.TeamService
         {
             services.AddMvc();
             services.AddScoped<ITeamRepository, MemoryTeamRepository>();
-            ConfigureDatabase(services);
-        }
-
-        public virtual void ConfigureDatabase(IServiceCollection services)
-        {
             var connection = @"Server=(localdb)\mssqllocaldb;Database=MsTeamDb;Trusted_Connection=True;ConnectRetryCount=0";
-            services.AddDbContext<TeamDbContext>(options => options.UseSqlServer(connection).UseLazyLoadingProxies());
+            services.AddDbContext<TeamDbContext>(options => options.UseSqlServer(connection));
         }
 
+      
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<TeamDbContext>();
+                context.Database.EnsureDeleted();
+                context.Database.Migrate();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

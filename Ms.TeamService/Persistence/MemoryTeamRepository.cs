@@ -8,7 +8,6 @@ namespace Ms.TeamService.Persistence
 {
     public class MemoryTeamRepository : ITeamRepository
     {
-        private static ICollection<Team> _teams;
         private TeamDbContext _context;
         public MemoryTeamRepository(TeamDbContext context)
         {
@@ -44,6 +43,19 @@ namespace Ms.TeamService.Persistence
         public Task DeleteTeamMember(Guid teamId, Guid memberId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task UpdateTeam(Team team)
+        {
+            _context.Update(team);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteTeam(Guid id)
+        {
+            var team = await _context.Teams.FindAsync(id);
+            _context.Remove(team);
+            await _context.SaveChangesAsync();
         }
     }
 }

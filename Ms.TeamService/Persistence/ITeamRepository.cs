@@ -14,5 +14,7 @@ namespace Ms.TeamService.Persistence
         Task AddTeamMember(Guid teamId, Member member);
         Task UpdateTeamMember(Guid teamId, Member member);
         Task DeleteTeamMember(Guid teamId, Guid memberId);
+        Task UpdateTeam(Team team);
+        Task DeleteTeam(Guid id);
     }
 }

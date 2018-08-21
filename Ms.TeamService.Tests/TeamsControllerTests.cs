@@ -86,8 +86,8 @@ namespace Ms.TeamService.Tests
         {
             return new Team[]
             {
-                new Team("one"),
-                new Team("two")
+                new Team{Name="one"},
+                new Team{Name="one"},
             };
         }
 

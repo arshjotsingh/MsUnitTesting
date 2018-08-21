@@ -6,7 +6,6 @@ using Ms.TeamService.Persistence;
 
 namespace Ms.TeamService.Controllers
 {
-    [Route("api/[controller]")]
     public class TeamsController : Controller
     {
         private ITeamRepository _teamRepository;
@@ -15,13 +14,14 @@ namespace Ms.TeamService.Controllers
             _teamRepository = teamRepository;
         }
 
-        [Route("api/[controller]/teams")]
+        [Route("api/[controller]")]
         [HttpGet]
         public async Task<IActionResult> GetAllTeams()
         {
             return Ok(await _teamRepository.GetTeams());
         }
 
+        [Route("api/[controller]/{id}")]
         [HttpGet]
         public async Task<IActionResult> GetTeamById(Guid teamId)
         {
@@ -33,6 +33,7 @@ namespace Ms.TeamService.Controllers
             return Ok(await _teamRepository.GetTeamById(teamId));
         }
 
+        [Route("api/[controller]")]
         [HttpPost]
         public async Task<IActionResult> CreateTeam([FromBody]Team t)
         {
@@ -41,17 +42,12 @@ namespace Ms.TeamService.Controllers
                 return BadRequest(ModelState);
             }
 
-            var team = await _teamRepository.GetTeamById(t.TeamId);
-            if (team == null)
-            {
-                await _teamRepository.AddTeam(t);
-                return Ok(t);
-            }
-            return BadRequest(ModelState);
+            await _teamRepository.AddTeam(t);
+            return CreatedAtRoute("GetTeams", t);
         }
 
         [HttpGet]
-        [Route("api/teams/ping")]
+        [Route("api/[controller]/ping")]
         public string Get()
         {
             return "Pong";

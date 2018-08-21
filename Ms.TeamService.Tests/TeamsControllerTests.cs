@@ -74,7 +74,7 @@ namespace Ms.TeamService.Tests
             var result = await controller.CreateTeam(team);
 
             //Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
+            var okResult = Assert.IsType<CreatedAtRouteResult>(result);
             var returnTeam = Assert.IsType<Team>(okResult.Value);
 
             Assert.Equal("Ont", returnTeam.Name);

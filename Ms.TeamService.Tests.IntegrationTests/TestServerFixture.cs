@@ -11,17 +11,17 @@ namespace Ms.TeamService.Tests.IntegrationTests
     public class TestServerFixture
     {
         private readonly TestServer _server;
-        public HttpClient httpClient { get; set; }
+        public HttpClient HttpClient { get; set; }
 
         public TestServerFixture()
         {
             var builder = new WebHostBuilder()
                 .UseContentRoot(GetContentRootPath())
                 .UseEnvironment("Development")
-                .UseStartup<Startup>();
+                .UseStartup<TestStartup>();
 
             _server = new TestServer(builder);
-            httpClient = _server.CreateClient();
+            HttpClient = _server.CreateClient();
         }
 
         private string GetContentRootPath()
@@ -34,7 +34,7 @@ namespace Ms.TeamService.Tests.IntegrationTests
 
         public void Dispose()
         {
-            httpClient.Dispose();
+            HttpClient.Dispose();
             _server.Dispose();
         }
 

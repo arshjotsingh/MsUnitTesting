@@ -9,9 +9,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Ms.TeamService.Persistence;
+using Ms.LocationService.Persistence;
 
-namespace Ms.TeamService
+namespace Ms.LocationService
 {
     public class Startup
     {
@@ -26,21 +26,21 @@ namespace Ms.TeamService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddScoped<ITeamRepository, TeamRepository>();
-            var connection = @"Server=(localdb)\mssqllocaldb;Database=MsTeamDb;Trusted_Connection=True;ConnectRetryCount=0";
-            services.AddDbContext<TeamDbContext>(options => options.UseSqlServer(connection));
+            services.AddScoped<ILocationRepository, LocationRepository>();
+            var connection = @"Server=(localdb)\mssqllocaldb;Database=MsLocationDb;Trusted_Connection=True;ConnectRetryCount=0";
+            services.AddDbContext<LocationDbContext>(options => options.UseSqlServer(connection));
         }
 
-      
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetRequiredService<TeamDbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<LocationDbContext>();
                 context.Database.EnsureDeleted();
                 context.Database.Migrate();
             }
+
 
             if (env.IsDevelopment())
             {

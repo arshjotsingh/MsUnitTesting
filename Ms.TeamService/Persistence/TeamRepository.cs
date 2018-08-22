@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Ms.TeamService.Persistence
 {
-    public class MemoryTeamRepository : ITeamRepository
+    public class TeamRepository : ITeamRepository
     {
         private TeamDbContext _context;
-        public MemoryTeamRepository(TeamDbContext context)
+        public TeamRepository(TeamDbContext context)
         {
             _context = context;
         }
@@ -19,10 +19,11 @@ namespace Ms.TeamService.Persistence
         {
             return await _context.Teams.ToListAsync();
         }
-        public async Task AddTeam(Team t)
+        public async Task<Team> AddTeam(Team t)
         {
             _context.Teams.Add(t);
             await _context.SaveChangesAsync();
+            return t;
         }
 
         public async Task<Team> GetTeamById(Guid teamId)
@@ -30,50 +31,46 @@ namespace Ms.TeamService.Persistence
             return await _context.Teams.FindAsync(teamId);
         }
 
-        public async Task AddTeamMember(Guid teamId, Member member)
+        public async Task<Member> AddTeamMember(Member member)
         {
-            var team = await _context.Teams.FindAsync(teamId);
-            member.Team = team;
-            member.TeamId = team.TeamId;
             _context.Members.Add(member);
             await _context.SaveChangesAsync();
+            return member;
         }
 
-        public async Task UpdateTeamMember(Guid teamId, Member member)
+        public async Task<Member> UpdateTeamMember(Member member)
         {
-            _context.Members.Update(member);
+            _context.Entry(member).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            return member;
         }
-        public async Task DeleteTeamMember(Member member)
+        public async Task<Member> DeleteTeamMember(Guid memberId)
         {
+            var member = await _context.Members.FindAsync(memberId);
             _context.Members.Remove(member);
             await _context.SaveChangesAsync();
+            return member;
         }
 
-        public async Task UpdateTeam(Team team)
+        public async Task<Team> UpdateTeam(Team team)
         {
-            _context.Update(team);
+            _context.Entry(team).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            return team;
         }
 
-        public async Task DeleteTeam(Guid id)
+        public async Task<Team> DeleteTeam(Guid id)
         {
             var team = await _context.Teams.FindAsync(id);
             _context.Remove(team);
             await _context.SaveChangesAsync();
+            return team;
         }
 
         public async Task<IEnumerable<Member>> GetTeamMembersByTeamId(Guid teamId)
         {
             return await _context.Members.Include(x => x.Team)
                 .Where(x => x.TeamId == teamId).ToListAsync();
-                
-        }
-
-
-        public async Task<Member> GetTeamMembersByMemberId(Guid memberId)
-        {
-            return await _context.Members.FindAsync(memberId);
         }
     }
 }

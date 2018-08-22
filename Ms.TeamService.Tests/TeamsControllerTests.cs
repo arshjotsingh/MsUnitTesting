@@ -68,7 +68,7 @@ namespace Ms.TeamService.Tests
             Mock<ITeamRepository> mockRepo = new Mock<ITeamRepository>();
             TeamsController controller = new TeamsController(mockRepo.Object);
             var team = GetTestTeamCreate();
-            mockRepo.Setup(x => x.AddTeam(team)).Returns(Task.CompletedTask);
+            mockRepo.Setup(x => x.AddTeam(team)).Returns(Task.FromResult(team));
 
             //Act
             var result = await controller.CreateTeam(team);

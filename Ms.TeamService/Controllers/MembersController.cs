@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Ms.TeamService.Dto;
 using Ms.TeamService.Models;
@@ -67,10 +66,11 @@ namespace Ms.TeamService.Controllers
                 FirstName = member.FirstName,
                 LastName = member.LastName,
                 MemberId = Guid.NewGuid(),
-                AddedTime = DateTime.Now
+                AddedTime = DateTime.Now,
+                Team = team
             };
 
-            await _teamRepository.AddTeamMember(team.TeamId, _member);
+            await _teamRepository.AddTeamMember(_member);
 
             return CreatedAtRoute("GetMember", new { id = _member.MemberId });
         }
@@ -101,8 +101,10 @@ namespace Ms.TeamService.Controllers
             _member.FirstName = member.FirstName;
             _member.LastName = member.LastName;
             _member.ModifiedTime = DateTime.Now;
+            _member.Team = team;
+            _member.TeamId = team.TeamId;
 
-            await _teamRepository.UpdateTeamMember(team.TeamId, _member);
+            await _teamRepository.UpdateTeamMember(_member);
 
             return NoContent();
         }
@@ -122,20 +124,7 @@ namespace Ms.TeamService.Controllers
             {
                 return NotFound();
             }
-
-            var members = await _teamRepository.GetTeamMembersByTeamId(teamId);
-            if (members == null)
-            {
-                return NotFound();
-            }
-
-            var member = members.Where(x => x.MemberId == memberId).FirstOrDefault();
-            if (member == null)
-            {
-                return NotFound();
-            }
-            await _teamRepository.DeleteTeamMember(member);
-
+            await _teamRepository.DeleteTeamMember(memberId);
             return NoContent();
         }
     }

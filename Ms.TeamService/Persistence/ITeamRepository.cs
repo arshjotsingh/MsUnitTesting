@@ -9,14 +9,13 @@ namespace Ms.TeamService.Persistence
     public interface ITeamRepository
     {
         Task<IEnumerable<Team>> GetTeams();
-        Task AddTeam(Team team);
+        Task<Team> AddTeam(Team team);
         Task<Team> GetTeamById(Guid teamId);
-        Task AddTeamMember(Guid teamId, Member member);
-        Task UpdateTeamMember(Guid teamId, Member member);
-        Task DeleteTeamMember(Member member);
-        Task UpdateTeam(Team team);
-        Task DeleteTeam(Guid id);
+        Task<Member> AddTeamMember(Member member);
+        Task<Member> UpdateTeamMember(Member member);
+        Task<Member> DeleteTeamMember(Guid memberId);
+        Task<Team> UpdateTeam(Team team);
+        Task<Team> DeleteTeam(Guid id);
         Task<IEnumerable<Member>> GetTeamMembersByTeamId(Guid teamId);
-        Task<Member> GetTeamMembersByMemberId(Guid memberId);
     }
 }

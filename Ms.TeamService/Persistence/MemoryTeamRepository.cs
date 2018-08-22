@@ -1,4 +1,5 @@
-﻿using Ms.TeamService.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Ms.TeamService.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Ms.TeamService.Persistence
 
         public async Task<IEnumerable<Team>> GetTeams()
         {
-            return await Task.Run(() => _context.Teams.ToList());
+            return await _context.Teams.ToListAsync();
         }
         public async Task AddTeam(Team t)
         {
@@ -32,17 +33,21 @@ namespace Ms.TeamService.Persistence
         public async Task AddTeamMember(Guid teamId, Member member)
         {
             var team = await _context.Teams.FindAsync(teamId);
-            team.Members.Add(member);
+            member.Team = team;
+            member.TeamId = team.TeamId;
+            _context.Members.Add(member);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateTeamMember(Guid teamId, Member member)
         {
-            throw new NotImplementedException();
+            _context.Members.Update(member);
+            await _context.SaveChangesAsync();
         }
-        public Task DeleteTeamMember(Guid teamId, Guid memberId)
+        public async Task DeleteTeamMember(Member member)
         {
-            throw new NotImplementedException();
+            _context.Members.Remove(member);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateTeam(Team team)
@@ -56,6 +61,19 @@ namespace Ms.TeamService.Persistence
             var team = await _context.Teams.FindAsync(id);
             _context.Remove(team);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Member>> GetTeamMembersByTeamId(Guid teamId)
+        {
+            return await _context.Members.Include(x => x.Team)
+                .Where(x => x.TeamId == teamId).ToListAsync();
+                
+        }
+
+
+        public async Task<Member> GetTeamMembersByMemberId(Guid memberId)
+        {
+            return await _context.Members.FindAsync(memberId);
         }
     }
 }

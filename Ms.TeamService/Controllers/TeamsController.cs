@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Ms.TeamService.Dto;
 using Ms.TeamService.Models;
 using Ms.TeamService.Persistence;
 
@@ -18,19 +20,40 @@ namespace Ms.TeamService.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTeams()
         {
-            return Ok(await _teamRepository.GetTeams());
+            var teams = new List<TeamDto>();
+            var _teams = await _teamRepository.GetTeams();
+            foreach (var _team in _teams)
+            {
+                teams.Add(new TeamDto
+                {
+                    AddedTime = _team.AddedTime,
+                    ModifiedTime = _team.ModifiedTime,
+                    Name = _team.Name,
+                    TeamId = _team.TeamId
+                });
+            }
+            return Ok(teams);
         }
 
-        [Route("api/[controller]/{id}")]
-        [HttpGet("{id}", Name = "GetTeam")]
-        public async Task<IActionResult> GetTeamById(Guid teamId)
+        [HttpGet]
+        [Route("api/[controller]/{id}", Name = "GetTeam")]
+        public async Task<IActionResult> GetTeamById(Guid id)
         {
-            var team = await _teamRepository.GetTeamById(teamId);
+            var team = await _teamRepository.GetTeamById(id);
             if (team == null)
             {
-                return NotFound(teamId);
+                return NotFound(id);
             }
-            return Ok(await _teamRepository.GetTeamById(teamId));
+
+            var _team = new TeamDto
+            {
+                AddedTime = team.AddedTime,
+                ModifiedTime = team.ModifiedTime,
+                Name = team.Name,
+                TeamId = team.TeamId
+            };
+
+            return Ok(_team);
         }
 
         [Route("api/[controller]")]

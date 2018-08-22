@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Ms.TeamService.Dto;
 using Ms.TeamService.Models;
 using Ms.TeamService.Persistence;
 
 namespace Ms.TeamService.Controllers
 {
     [Produces("application/json")]
-    [Route("api/[controller]")]
     public class MembersController : Controller
     {
         private ITeamRepository _teamRepository;
@@ -19,44 +19,60 @@ namespace Ms.TeamService.Controllers
             _teamRepository = teamRepository;
         }
 
-        [Route("api/teams/{teamId}/[controller]")]
         [HttpGet]
-        public async Task<IActionResult> Get(Guid teamId)
+        [Route("api/teams/{id}/[controller]", Name = "GetMember")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            var team = await _teamRepository.GetTeamById(teamId);
+            var team = await _teamRepository.GetTeamById(id);
             if (team == null)
             {
-                return NotFound(teamId);
+                return NotFound(id);
             }
 
-            return Ok(team.Members);
+            var members = await _teamRepository.GetTeamMembersByTeamId(id);
+            var _members = new List<MemberDto>();
+            foreach (var _member in members)
+            {
+                _members.Add(new MemberDto
+                {
+                    MemberId = _member.MemberId,
+                    AddedTime = _member.AddedTime,
+                    FirstName = _member.FirstName,
+                    LastName = _member.LastName,
+                    ModifiedTime = _member.ModifiedTime,
+                    TeamId = _member.TeamId
+                });
+            }
+            return Ok(_members);
         }
 
-        [Route("api/teams/{teamId}/[controller]")]
+
+        [Route("api/teams/{id}/[controller]")]
         [HttpPost]
-        public async Task<IActionResult> Post(Guid teamId, [FromBody]Member member)
+        public async Task<IActionResult> Post(Guid id, [FromBody]Member member)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var team = await _teamRepository.GetTeamById(teamId);
+            var team = await _teamRepository.GetTeamById(id);
             if (team == null)
             {
-                return NotFound(teamId);
+                return NotFound(id);
             }
 
             var _member = new Member
             {
                 FirstName = member.FirstName,
                 LastName = member.LastName,
-                MemberId = Guid.NewGuid()
+                MemberId = Guid.NewGuid(),
+                AddedTime = DateTime.Now
             };
 
             await _teamRepository.AddTeamMember(team.TeamId, _member);
 
-            return CreatedAtRoute("GetMembers", _member);
+            return CreatedAtRoute("GetMember", new { id = _member.MemberId });
         }
 
         [Route("api/teams/{teamId}/[controller]/{memberId}")]
@@ -71,17 +87,20 @@ namespace Ms.TeamService.Controllers
             var team = await _teamRepository.GetTeamById(teamId);
             if (team == null)
             {
-                return NotFound(teamId);
+                return NotFound();
             }
 
-            var _member = team.Members.Where(x => x.MemberId == memberId).FirstOrDefault();
-            if (_member == null)
+            var members = await _teamRepository.GetTeamMembersByTeamId(teamId);
+            if (members == null)
             {
-                return NotFound(memberId);
+                return NotFound();
             }
+
+            var _member = members.Where(x => x.MemberId == memberId).FirstOrDefault();
 
             _member.FirstName = member.FirstName;
             _member.LastName = member.LastName;
+            _member.ModifiedTime = DateTime.Now;
 
             await _teamRepository.UpdateTeamMember(team.TeamId, _member);
 
@@ -101,19 +120,23 @@ namespace Ms.TeamService.Controllers
             var team = await _teamRepository.GetTeamById(teamId);
             if (team == null)
             {
-                return NotFound(teamId);
+                return NotFound();
             }
 
-            var member = team.Members.Where(x => x.MemberId == memberId).FirstOrDefault();
+            var members = await _teamRepository.GetTeamMembersByTeamId(teamId);
+            if (members == null)
+            {
+                return NotFound();
+            }
+
+            var member = members.Where(x => x.MemberId == memberId).FirstOrDefault();
             if (member == null)
             {
-                return NotFound(memberId);
+                return NotFound();
             }
-
-            await _teamRepository.DeleteTeamMember(team.TeamId, member.MemberId);
+            await _teamRepository.DeleteTeamMember(member);
 
             return NoContent();
-
         }
     }
 }
